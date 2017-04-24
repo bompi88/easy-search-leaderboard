@@ -1,23 +1,85 @@
 import { Players } from './players.js';
-import { Index, MongoDBEngine } from 'meteor/easy:search';
+import { Index } from 'meteor/easy:search';
 import { _ } from 'meteor/underscore';
 
 export const PlayersIndex = new Index({
-  engine: new MongoDBEngine({
-    sort: function () {
-      return { score: -1 };
+  engine: new EasySearch.ElasticSearch({
+    client: {
+      host: Meteor.settings && Meteor.settings.elasticsearch && Meteor.settings.elasticsearch.host,
+      sniffOnStart: false,
+      // log: 'trace',
+      requestTimeout: 30000
     },
-    selector: function (searchObject, options, aggregation) {
-      let selector = this.defaultConfiguration().selector(searchObject, options, aggregation),
-        categoryFilter = options.search.props.categoryFilter;
+    sort: function() {
+      return {
+        _score: { order: 'desc' }
+      }
+    },
+    body: function (body, options) {
+      // add aggregations
+      body.aggs = {
+        category: {
+          filter: {},
+          aggs: {
+            category: {
+              terms: {
+                field: 'category',
+                min_doc_count: 0,
+                order: { _term : 'asc' }
+              }
+            }
+          }
+        }
+      };
+
+      return body;
+    },
+    query: function ({ name }, options) {
+      let filter = {};
+      let categoryFilter = options.search.props.categoryFilter;
 
       if (_.isString(categoryFilter) && !_.isEmpty(categoryFilter)) {
-        selector.category = categoryFilter;
+        filter = { term: { category: categoryFilter } };
       }
 
-      return selector;
+      return {
+        filtered: {
+          query: {
+            fuzzy: {
+              name: {
+                value: name,
+                boost: 1.0,
+                fuzziness: 2,
+                prefix_length: 0,
+                max_expansions: 100
+              }
+            }
+          },
+          filter
+        }
+      };
     }
   }),
+  mapping: {
+    players: {
+      properties: {
+        name: {
+          type: 'string',
+          fields: {
+            raw: { type: 'string', index: 'not_analyzed' }
+          }
+        },
+        score: {
+          type: 'integer'
+        },
+        category: {
+          type: 'string',
+          index: 'not_analyzed'
+        }
+      }
+    }
+  },
+  name: 'players',
   collection: Players,
   fields: ['name'],
   defaultSearchOptions: {

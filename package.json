@@ -21,6 +21,7 @@
     "fs-extra": "^0.30.0"
   },
   "scripts": {
-    "install": "node ./.scripts/unpack_github_dependencies.js"
+    "install": "node ./.scripts/unpack_github_dependencies.js",
+    "start": "meteor --settings ./settings.json"
   }
 }

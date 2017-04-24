@@ -11,13 +11,7 @@
     {{/if}}
   {{/EasySearch.IfInputEmpty}}
 
-  <select class="category-filter">
-    <option value="">All</option>
-    <option value="Hipster">Hipster</option>
-    <option value="Genius">Genius</option>
-    <option value="Idler">Idler</option>
-    <option value="Geek">Geek</option>
-  </select>
+  {{ > filter class="category-filter" }}
 
   {{#EasySearch.IfSearching index=index }}
     <div>Searching</div>
