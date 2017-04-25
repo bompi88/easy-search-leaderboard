@@ -17,6 +17,10 @@ var unpack = [
   {
     from: path.join(srcPackagesFolder, 'easysearch:core'),
     to: path.join(targetPackageFolder, 'easysearch_core')
+  },
+  {
+    from: path.join(srcPackagesFolder, 'easysearch:components'),
+    to: path.join(targetPackageFolder, 'easysearch_components')
   }
 ];
 
