@@ -45,13 +45,11 @@ export const PlayersIndex = new Index({
       return {
         filtered: {
           query: {
-            fuzzy: {
+            match: {
               name: {
-                value: name,
-                boost: 1.0,
-                fuzziness: 2,
-                prefix_length: 0,
-                max_expansions: 100
+                query: name,
+                fuzziness: 'AUTO',
+                operator:  'or'
               }
             }
           },
