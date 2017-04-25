@@ -41,13 +41,13 @@ export const PlayersIndex = new Index({
 
       return {
         query: {
-          filtered: {
-            query: body.query,
+          bool: {
+            must: body.query,
             filter
           }
         },
         aggs,
-        fields: body.fields
+        stored_fields: body.fields
       };
     }
   }),
@@ -55,18 +55,24 @@ export const PlayersIndex = new Index({
     players: {
       properties: {
         name: {
-          type: 'string',
+          type: 'text',
           fields: {
-            raw: { type: 'string', index: 'not_analyzed' }
+            raw: {
+              type: 'keyword',
+              ignore_above: 256
+            }
           }
         },
         score: {
           type: 'integer'
         },
         category: {
-          type: 'string',
+          type: 'text',
           fields: {
-            raw: { type: 'string', index: 'not_analyzed' }
+            raw: {
+              type: 'keyword',
+              ignore_above: 256
+            }
           }
         }
       }
