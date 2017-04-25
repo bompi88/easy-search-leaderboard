@@ -11,7 +11,7 @@ $ npm install
 ```
 
 # Run
-Be sure to start elasticsearch at port 9200 before running:
+Be sure to start elasticsearch 5.x at port 9200 before running:
 
 ``` bash
 $ npm run start
