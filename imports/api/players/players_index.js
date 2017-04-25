@@ -16,8 +16,15 @@ export const PlayersIndex = new Index({
       }
     },
     body: function (body, options) {
+      let filter = {};
+      let categoryFilter = options.search.props.categoryFilter;
+
+      if (_.isString(categoryFilter) && !_.isEmpty(categoryFilter)) {
+        filter = { term: { category: categoryFilter } };
+      }
+
       // add aggregations
-      body.aggs = {
+      const aggs = {
         category: {
           filter: {},
           aggs: {
@@ -32,29 +39,15 @@ export const PlayersIndex = new Index({
         }
       };
 
-      return body;
-    },
-    query: function ({ name }, options) {
-      let filter = {};
-      let categoryFilter = options.search.props.categoryFilter;
-
-      if (_.isString(categoryFilter) && !_.isEmpty(categoryFilter)) {
-        filter = { term: { category: categoryFilter } };
-      }
-
       return {
-        filtered: {
-          query: {
-            match: {
-              name: {
-                query: name,
-                fuzziness: 'AUTO',
-                operator:  'or'
-              }
-            }
-          },
-          filter
-        }
+        query: {
+          filtered: {
+            query: body.query,
+            filter
+          }
+        },
+        aggs,
+        fields: body.fields
       };
     }
   }),
@@ -79,7 +72,7 @@ export const PlayersIndex = new Index({
   },
   name: 'players',
   collection: Players,
-  fields: ['name'],
+  fields: ['name', 'category'],
   defaultSearchOptions: {
     limit: 8
   },
