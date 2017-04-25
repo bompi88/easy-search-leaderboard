@@ -20,7 +20,7 @@ export const PlayersIndex = new Index({
       let categoryFilter = options.search.props.categoryFilter;
 
       if (_.isString(categoryFilter) && !_.isEmpty(categoryFilter)) {
-        filter = { term: { category: categoryFilter } };
+        filter = { term: { 'category.raw': categoryFilter } };
       }
 
       // add aggregations
@@ -30,7 +30,7 @@ export const PlayersIndex = new Index({
           aggs: {
             category: {
               terms: {
-                field: 'category',
+                field: 'category.raw',
                 min_doc_count: 0,
                 order: { _term : 'asc' }
               }
@@ -65,7 +65,9 @@ export const PlayersIndex = new Index({
         },
         category: {
           type: 'string',
-          index: 'not_analyzed'
+          fields: {
+            raw: { type: 'string', index: 'not_analyzed' }
+          }
         }
       }
     }
